@@ -49,29 +49,38 @@ class Zendesk
     }
   end
 end
+
 # Represents a single ticket, including its data and metrics
 class Ticket
-  def initialize
-    
+  def initialize(info, metrics)
+      @info = info
+      @metrics = metrics
   end
 
-  def data
-    ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority', 'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
+  def info
+    @info
   end
 
   def metrics
-    ['solved_at', 'full_resolution_time_in_minutes', 'requester_wait_time_in_minutes', 'reply_time_in_minutes']
+    @metrics
   end
 end
 
 # Represents an aggregate of metrics from multiple tickets 
 class Metrics
-  def initialize
-
+  def initialize(tickets)
+    @tickets = tickets
+    @tickets_by_age = Hash.new {|age, id|}
+    @tickets_by_reply = Hash.new {|priority, avg_reply_time|}
+    tickets.each do |ticket|
   end
 
   def tickets_by_age
-    Hash.new {|age, value|}
+    
+  end
+
+  def tickets_by_reply
+
   end
 end
 
@@ -82,19 +91,19 @@ class Graphs
   end
 end
 
-
+# begin script
 system 'clear'
 puts 'Envision Zendesk Tickets'
 puts '------------------------'
 
 puts '-> Retrieving Tickets'
 zendesk = Zendesk.new
-tickets = zendesk.tickets
-puts '   Total tickets = ' + tickets.count.to_s
+tickets_in = zendesk.tickets
+puts '   Total tickets = ' + tickets_in.count.to_s
 puts
 
 puts '-> Generating tickets summary file: all_tickets.csv'
-progressbar = ProgressBar.create(title: "#{tickets.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: tickets.count)
+progressbar = ProgressBar.create(title: "#{tickets.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: tickets_in.count)
 
 CSV.open("all_tickets.csv", "wb") do |csv|
   csv << zendesk.export_columns + zendesk.metric_columns
@@ -104,61 +113,67 @@ CSV.open("tickets_by_reply_time.csv", "wb") do |csv|
   csv << zendesk.metric_columns
 end
 
-tickets.each do |ticket|
-  CSV.open("all_tickets.csv", "a") do |csv|
-    row = []
+# Import tickets from Zendesk into instances of Ticket class
 
-    zendesk.export_columns.each do |column|
+tickets_in.each do |ticket|
+
+    info = []
+    metrics_info = []
+    zendesk.export_colums.each do |column|
       case column
       when 'type'
-        row << ticket['custom_fields'][0]['value']
+        info << ticket['custom_fields'][0]['value']
       when 'user_priority'
-        row << ticket['custom_fields'][1]['value']
+        info << ticket['custom_fields'][1]['value']
       when 'development_priority'
         value = ticket['custom_fields'][2]['value']
         if value
-          row << "d#{value[-1]}" if value[-1].to_i > 0
+          info << "d#{value[-1]}" if value[-1].to_i > 0
         else
-          row << value
+          info << value
         end
       when 'company'
-        row << ticket['custom_fields'][3]['value']
+        info << ticket['custom_fields'][3]['value']
       when 'project'
-        row << ticket['custom_fields'][4]['value']
+        info << ticket['custom_fields'][4]['value']
       when 'platform'
-        row << ticket['custom_fields'][5]['value']
+        info << ticket['custom_fields'][5]['value']
       when 'function'
-        row << ticket['custom_fields'][6]['value']
+        info << ticket['custom_fields'][6]['value']
       when 'satisfaction_rating'
-        row << ticket['satisfaction_rating']['score']
+        info << ticket['satisfaction_rating']['score']
       else
-        row << ticket[column]
+        info << ticket[column]
       end
     end
 
     begin
       metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", zendesk.basic_auth)
       zendesk.metric_columns.each do |column|
-        binding.pry
         if metrics['ticket_metric']
           case column
           when 'solved_at'
-            row << metrics['ticket_metric'][column]
-          when 'full_resolution_time_in_minutes'
-            age_row << floor.(metrics['ticket_metric'][column]['business'] / 1440)
-          # when 'requester_wait_time_in_minutes'
-          #   row << 
-          # when 'reply_time_in_minutes'
-          #   reply_row << 
+            metrics_info << metrics['ticket_metric'][column]
           else
-            row << metrics['ticket_metric'][column]['business']
+            metrics_info << metrics['ticket_metric'][column]['business']
           end
         end
       end
     rescue
       retry
     end
+    this = Ticket.new(info, metrics_info)
+end
+
+# Write ticket information to a csv file
+tickets.each do |ticket|
+  CSV.open("all_tickets.csv", "a") do |csv|
+    row = []
     csv << row
     progressbar.increment
   end
 end
+
+# Agreggate ticket metrics
+
+# Generate graphs from aggregates
