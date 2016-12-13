@@ -5,6 +5,8 @@ require 'ruby-progressbar'
 require 'csv'
 require 'pry'
 require 'optparse'
+require 'metric.rb'
+require 'ticket.rb'
 
 class Zendesk
   def initialize
@@ -60,45 +62,6 @@ class Zendesk
   end
 end
 
-# Represents a single ticket, including its data and metrics
-class Ticket
-  attr_accessor :metrics, :info
-
-  def initialize(info, metrics)
-      @info = info
-      @metrics = metrics
-  end
-end
-
-# Represents an aggregate of metrics from multiple tickets 
-# class Metrics
-#   def initialize(tickets)
-#     @tickets = tickets
-#     @tickets_by_age = Hash.new {|age, id|}
-#     @tickets_by_user_priority = Hash.new {|user_priority, [reply_times]|}
-#     @tickets_by_development_priority = Hash.new {|development_priority, [reply_times]|}
-#     tickets.each do |ticket|
-#     	age = floor(ticket.metrics['age'] / 1440)
-#     	@tickets_by_age.update[:age]
-#     	@tickets_by_user_priority[ticket['user_priority']]
-
-#   end
-
-#   def tickets_by_age
-    
-#   end
-
-#   def tickets_by_reply
-
-#   end
-# end
-
-# Contains methods for generating a suite of graphs based on ticket metrics
-class Graphs
-  def initialize
-
-  end
-end
 
 # begin script
 system 'clear'
@@ -226,7 +189,6 @@ tickets_in.first(10).each do |ticket|
 
 end
 
-
 puts 'Writing ticket information to all_tickets.csv'
 tickets.each do |ticket|
 	row = []
@@ -239,7 +201,7 @@ tickets.each do |ticket|
 end
 
 
-# metrics = Metrics.new(tickets)
+metrics = Metrics.new(tickets)
 
 # Agreggate ticket metrics
 # tickets.each do |ticket|
