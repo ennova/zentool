@@ -8,6 +8,7 @@ gem 'pry'
 gem 'ruby-graphviz'
 gem 'rubysl-optparse'
 gem 'rspec'
+gem 'rubocop'
 
 # Specify your gem's dependencies in zentool.gemspec
 gemspec

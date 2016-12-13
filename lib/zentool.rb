@@ -8,16 +8,16 @@ require 'uri'
 require 'ruby-graphviz'
 require 'optparse'
 
-require "zentool/version"
+require 'zentool/version'
 require_relative 'zentool/zendesk_article.rb'
 require_relative 'zentool/graph.rb'
 
 options = {}
 
 OptionParser.new do |parser|
-  parser.banner = "Usage: zentool [options]"
+  parser.banner = 'Usage: zentool [options]'
 
-  parser.on("-h", "--help", "Show this help message") do ||
+  parser.on('-h', '--help', 'Show this help message') do ||
     puts parser
   end
 

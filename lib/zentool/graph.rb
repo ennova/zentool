@@ -14,10 +14,11 @@ class Graph
     graph_settings
     graph_nodes
     graph_edges
-    @@g.output(png: "#{$PROGRAM_NAME}.png")
+    @@g.output(png: "article_relationships.png")
   end
 
   private
+  
     def wrap(s, width = 20)
       s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
     end
@@ -37,11 +38,9 @@ class Graph
     end
 
     def relationship_hash
-      r = {}
       @@articles.each do |article|
         unless (@@categories[@@sections[article['section_id']]['category_id']]['name'] == 'Announcements') || (article['body'].class != String)
           referenced_links = extract_links(article['body'])
-
           referenced_articles = []
           unless referenced_links.empty?
             referenced_links.each do |link|
@@ -51,9 +50,8 @@ class Graph
                 referenced_articles << wrap("#{title}\n#{id}")
               end
             end
-            r[article['id']] = referenced_articles
+            @@relationship_hash[article['id']] = referenced_articles
           end
-          @@relationship_hash = r
         end
       end
     end
