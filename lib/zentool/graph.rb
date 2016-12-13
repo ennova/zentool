@@ -1,12 +1,10 @@
 # Graph class for pull_articles.rb
 
 class Graph
-  def initialize
+  def initialize(articles, sections, categories)
     @@id_title_hash = {}
     @@relationship_hash = {}
-    @@articles = $articles_g
-    @@sections = $sections_g
-    @@categories = $categories_g
+    @@articles, @@sections, @@categories = articles, sections, categories
 
     $LOAD_PATH.unshift('../lib')
     @@g = GraphViz.new('G')

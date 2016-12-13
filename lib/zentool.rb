@@ -68,19 +68,16 @@ zendesk = ZendeskArticle.new
 puts '-> Retrieving Categories'
 zendesk = ZendeskArticle.new
 categories = Hash[zendesk.categories.collect { |s| [s['id'], s] }]
-$categories_g = categories
 puts
 
 puts '-> Retrieving Sections'
 zendesk = ZendeskArticle.new
 sections = Hash[zendesk.sections.collect { |s| [s['id'], s] }]
-$sections_g = sections
 puts
 
 puts '-> Retrieving Articles'
 zendesk = ZendeskArticle.new
 articles = zendesk.articles
-$articles_g = articles
 puts
 
 puts '-> Generating article summary file: all_articles.csv'
@@ -129,5 +126,5 @@ File.open('problem_articles.csv', 'w') do |file|
   end
 end
 
-graph = Graph.new
+graph = Graph.new(articles, sections, categories)
 graph.generate
