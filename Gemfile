@@ -1,14 +1,13 @@
 source 'https://rubygems.org'
 
-require 'nokogiri'
-require 'active_support/all'
-require 'httparty'
-require 'ruby-progressbar'
-require 'pry'
-require 'io/console'
-require 'uri'
-require 'ruby-graphviz'
-require 'optparse'
+gem 'nokogiri'
+gem 'activesupport'
+gem 'httparty'
+gem 'ruby-progressbar'
+gem 'pry'
+gem 'ruby-graphviz'
+gem 'rubysl-optparse'
+gem 'rspec'
 
 # Specify your gem's dependencies in zentool.gemspec
 gemspec
