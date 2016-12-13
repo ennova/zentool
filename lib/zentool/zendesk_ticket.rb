@@ -31,7 +31,7 @@ class Zendesk
     end
     tickets
   end
-
+    
   def export_columns
     ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority', 'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
   end
@@ -49,6 +49,39 @@ class Zendesk
     }
   end
 end
+# Represents a single ticket, including its data and metrics
+class Ticket
+  def initialize
+    
+  end
+
+  def data
+    ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority', 'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
+  end
+
+  def metrics
+    ['solved_at', 'full_resolution_time_in_minutes', 'requester_wait_time_in_minutes', 'reply_time_in_minutes']
+  end
+end
+
+# Represents an aggregate of metrics from multiple tickets 
+class Metrics
+  def initialize
+
+  end
+
+  def tickets_by_age
+    Hash.new {|age, value|}
+  end
+end
+
+# Contains methods for generating a suite of graphs based on ticket metrics
+class Graphs
+  def initialize
+
+  end
+end
+
 
 system 'clear'
 puts 'Envision Zendesk Tickets'
@@ -65,12 +98,16 @@ progressbar = ProgressBar.create(title: "#{tickets.count} Tickets", starting_at:
 
 CSV.open("all_tickets.csv", "wb") do |csv|
   csv << zendesk.export_columns + zendesk.metric_columns
+CSV.open("tickets_by_age.csv", "wb") do |csv|
+  csv << zendesk.metric_columns
+CSV.open("tickets_by_reply_time.csv", "wb") do |csv|
+  csv << zendesk.metric_columns
 end
-
 
 tickets.each do |ticket|
   CSV.open("all_tickets.csv", "a") do |csv|
     row = []
+
     zendesk.export_columns.each do |column|
       case column
       when 'type'
@@ -102,9 +139,17 @@ tickets.each do |ticket|
     begin
       metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", zendesk.basic_auth)
       zendesk.metric_columns.each do |column|
+        binding.pry
         if metrics['ticket_metric']
-          if column == 'solved_at'
+          case column
+          when 'solved_at'
             row << metrics['ticket_metric'][column]
+          when 'full_resolution_time_in_minutes'
+            age_row << floor.(metrics['ticket_metric'][column]['business'] / 1440)
+          # when 'requester_wait_time_in_minutes'
+          #   row << 
+          # when 'reply_time_in_minutes'
+          #   reply_row << 
           else
             row << metrics['ticket_metric'][column]['business']
           end
