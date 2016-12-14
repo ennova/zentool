@@ -201,6 +201,7 @@ tickets.each do |ticket|
 end
 
 metrics = Metrics.new(tickets)
+metrics.graph
 
 # Agreggate ticket metrics
 # tickets.each do |ticket|
