@@ -1,5 +1,6 @@
 # Represents an aggregate of metrics from multiple tickets 
 class Metrics
+<<<<<<< HEAD
 
   MINUTES_IN_DAY = 1440
   attr_accessor :tickets, :tickets_by_age, :tickets_by_user_priority, :tickets_by_development_priority
