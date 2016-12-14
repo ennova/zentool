@@ -21,22 +21,18 @@ OptionParser.new do |parser|
     puts parser
   end
 
-  parser.on("-u", "--username USERNAME", "The username for the Zendesk.") do |v|
+  parser.on('-u', '--username USERNAME', 'The username for the Zendesk.') do |v|
     options[:username] = v
   end
 
-  parser.on("-p", "--password PASSWORD", "The password for the Zendesk.") do |v|
+  parser.on('-p', '--password PASSWORD', 'The password for the Zendesk.') do |v|
     options[:password] = v
   end
 
-  parser.on("-l", "--link LINK", "The Zendesk URL.") do |v|
+  parser.on('-l', '--link LINK', 'The Zendesk URL.') do |v|
     options[:url] = v
   end
 end.parse!
-
-def wrap(s, width = 20)
-  s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
-end
 
 if options[:url] == NilClass || !options.key?(:url)
   print 'Zendesk URL: '
@@ -60,22 +56,18 @@ $zendesk_url = options[:url]
 $zendesk_username = options[:username]
 $zendesk_password = options[:password]
 
-puts 'Envision Zendesk Articles'
-puts '--------------------------'
-
-zendesk = ZendeskArticle.new
+puts ' Envision Zendesk Articles'
+puts '---------------------------'
 
 puts '-> Retrieving Categories'
 zendesk = ZendeskArticle.new
 categories = Hash[zendesk.categories.collect { |s| [s['id'], s] }]
-puts
 
-puts '-> Retrieving Sections'
+puts "\n-> Retrieving Sections"
 zendesk = ZendeskArticle.new
 sections = Hash[zendesk.sections.collect { |s| [s['id'], s] }]
-puts
 
-puts '-> Retrieving Articles'
+puts "\n-> Retrieving Articles\n"
 zendesk = ZendeskArticle.new
 articles = zendesk.articles
 puts
