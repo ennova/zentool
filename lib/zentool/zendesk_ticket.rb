@@ -5,8 +5,8 @@ require 'ruby-progressbar'
 require 'csv'
 require 'pry'
 require 'optparse'
-require 'metric.rb'
-require 'ticket.rb'
+require_relative 'metrics'
+require_relative 'ticket'
 
 class Zendesk
   def initialize
@@ -199,7 +199,6 @@ tickets.each do |ticket|
 
   end
 end
-
 
 metrics = Metrics.new(tickets)
 
