@@ -1,4 +1,5 @@
 require_relative '../lib/zentool/metrics'
+require_relative '../lib/zentool/ticket'
 
 describe Metrics do
 	before :each do
