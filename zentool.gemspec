@@ -4,18 +4,16 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'zentool/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "zentool"
+  spec.name          = 'zentool'
   spec.version       = Zentool::VERSION
-  spec.authors       = ["Tom Stephen", "Adrian Smith"]
-  spec.email         = ["tom.stephen@me.com", "adrian.smith@ennova.com.au"]
+  spec.authors       = ['Tom Stephen', 'Jared Sharplin', 'Adrian Smith']
+  spec.email         = ['tom.stephen@me.com', 'jared.sharplin@uqconnect.edu.au', 'adrian.smith@ennova.com.au']
 
   spec.summary       = %q{Tool to interface with Zendesk}
   spec.description   = %q{Tool to interface with Zendesk}
-  spec.homepage      = "https://github.com/tomstephen/zentool"
-  spec.license       = "MIT"
+  spec.homepage      = 'https://github.com/tomstephen/zentool'
+  spec.license       = 'MIT'
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
     spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
   else
