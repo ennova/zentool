@@ -8,35 +8,31 @@ require 'uri'
 require 'ruby-graphviz'
 require 'optparse'
 
-require "zentool/version"
+require 'zentool/version'
 require_relative 'zentool/zendesk_article.rb'
 require_relative 'zentool/graph.rb'
 
 options = {}
 
 OptionParser.new do |parser|
-  parser.banner = "Usage: zentool [options]"
+  parser.banner = 'Usage: zentool [options]'
 
-  parser.on("-h", "--help", "Show this help message") do ||
+  parser.on('-h', '--help', 'Show this help message') do ||
     puts parser
   end
 
-  parser.on("-u", "--username USERNAME", "The username for the Zendesk.") do |v|
+  parser.on('-u', '--username USERNAME', 'The username for the Zendesk.') do |v|
     options[:username] = v
   end
 
-  parser.on("-p", "--password PASSWORD", "The password for the Zendesk.") do |v|
+  parser.on('-p', '--password PASSWORD', 'The password for the Zendesk.') do |v|
     options[:password] = v
   end
 
-  parser.on("-l", "--link LINK", "The Zendesk URL.") do |v|
+  parser.on('-l', '--link LINK', 'The Zendesk URL.') do |v|
     options[:url] = v
   end
 end.parse!
-
-def wrap(s, width = 20)
-  s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
-end
 
 if options[:url] == NilClass || !options.key?(:url)
   print 'Zendesk URL: '
@@ -60,27 +56,20 @@ $zendesk_url = options[:url]
 $zendesk_username = options[:username]
 $zendesk_password = options[:password]
 
-puts 'Envision Zendesk Articles'
-puts '--------------------------'
-
-zendesk = ZendeskArticle.new
+puts ' Envision Zendesk Articles'
+puts '---------------------------'
 
 puts '-> Retrieving Categories'
 zendesk = ZendeskArticle.new
 categories = Hash[zendesk.categories.collect { |s| [s['id'], s] }]
-$categories_g = categories
-puts
 
-puts '-> Retrieving Sections'
+puts "\n-> Retrieving Sections"
 zendesk = ZendeskArticle.new
 sections = Hash[zendesk.sections.collect { |s| [s['id'], s] }]
-$sections_g = sections
-puts
 
-puts '-> Retrieving Articles'
+puts "\n-> Retrieving Articles\n"
 zendesk = ZendeskArticle.new
 articles = zendesk.articles
-$articles_g = articles
 puts
 
 puts '-> Generating article summary file: all_articles.csv'
@@ -129,5 +118,5 @@ File.open('problem_articles.csv', 'w') do |file|
   end
 end
 
-graph = Graph.new
+graph = Graph.new(articles, sections, categories)
 graph.generate
