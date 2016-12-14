@@ -18,8 +18,8 @@ class Graph
   end
 
   private
-  
-    def wrap(s, width = 20)
+
+    def self.wrap(s, width = 30)
       s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
     end
 
@@ -29,11 +29,11 @@ class Graph
       end
     end
 
-    def extract_links(string)
+    def self.extract_links(string)
       [URI.extract(string, /http(s)?/)].flatten
     end
 
-    def extract_IDs(string)
+    def self.extract_IDs(string)
       string.split(//).map { |x| x[/\d+/] }.compact.join('').to_i
     end
 
