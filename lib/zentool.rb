@@ -8,7 +8,7 @@ require 'uri'
 require 'ruby-graphviz'
 require 'optparse'
 
-require 'zentool/version'
+# require 'zentool/version'
 require_relative 'zentool/zendesk_article.rb'
 require_relative 'zentool/article_helper.rb'
 require_relative 'zentool/graph.rb'

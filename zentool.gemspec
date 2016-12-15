@@ -6,6 +6,8 @@ require 'zentool/version'
 Gem::Specification.new do |spec|
   spec.name          = 'zentool'
   spec.version       = Zentool::VERSION
+  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  # spec.default_executable = ["zentool"]  
   spec.authors       = ['Tom Stephen', 'Jared Sharplin', 'Adrian Smith']
   spec.email         = ['tom.stephen@me.com', 'jared.sharplin@uqconnect.edu.au', 'adrian.smith@ennova.com.au']
 

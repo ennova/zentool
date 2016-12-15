@@ -1,9 +1,8 @@
 require 'zentool/graph.rb'
+require 'zentool/article_helper.rb'
 
 class Graph
-  # public :wrap
   attr_accessor :articles, :sections, :categories
-
 end
 
 describe Graph do
@@ -66,6 +65,16 @@ describe Graph do
     context "given 'https://www.google.com/1292/bla'" do
       it "returns '1292'" do
         expect(Graph.extract_IDs('https://www.google.com/1292/bla')).to eql(1292)
+      end
+    end
+  end
+
+  describe '.create_id_title_map' do
+    context 'given an array of hashes of articles w/ id + titles' do
+      it 'creates a hash article id: titles' do
+        articles_input = [{'id' => 10, 'title' => 'ten'}, {'id' => 74365, 'title' => 'Green eggs and ham'}, {'id' => 333, 'title' => 'cat mat bat'}]
+        article_output = {'10' => 'ten', '74365' => 'Green eggs and ham', '333' => 'cat mat bat'}
+        expect(Graph.create_id_title_map(articles_input)).to eql(article_output)
       end
     end
   end
