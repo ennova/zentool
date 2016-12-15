@@ -1,7 +1,8 @@
 # Article Helper class, called from zentool.rb to do all the work with articles
 
 class ArticleHelper
-  def initialize
+  def initialize(username, password, domain)
+    @username, @password, @domain = username, password, domain
   end
 
   def run
@@ -19,15 +20,15 @@ class ArticleHelper
     puts '---------------------------'
 
     puts '-> Retrieving Categories'
-    @zendesk = ZendeskArticle.new
+    @zendesk = ZendeskArticle.new(@username, @password, @domain)
     @categories = Hash[@zendesk.categories.collect { |s| [s['id'], s] }]
 
     puts "\n-> Retrieving Sections"
-    @zendesk = ZendeskArticle.new
+    @zendesk = ZendeskArticle.new(@username, @password, @domain)
     @sections = Hash[@zendesk.sections.collect { |s| [s['id'], s] }]
 
     puts "\n-> Retrieving Articles\n"
-    @zendesk = ZendeskArticle.new
+    @zendesk = ZendeskArticle.new(@username, @password, @domain)
     @articles = @zendesk.articles
     puts
   end

@@ -38,11 +38,11 @@ class Graph
   def article_link_map
     @articles.each do |article|
       unless (@categories[@sections[article['section_id']]['category_id']]['name'] == 'Announcements') || (article['body'].class != String)
-        referenced_links = extract_links(article['body'])
+        referenced_links = Graph.extract_links(article['body'])
         referenced_articles = []
         unless referenced_links.empty?
           referenced_links.each do |link|
-            id = extract_IDs(link)
+            id = Graph.extract_IDs(link)
             title = @id_title_map[id]
             unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
               referenced_articles << Graph.wrap("#{title}\n#{id}")

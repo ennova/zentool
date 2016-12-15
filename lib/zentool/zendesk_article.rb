@@ -1,11 +1,12 @@
 # Interface with zendesk to access articles
 
 class ZendeskArticle
-  def initialize
-    @root_uri = $zendesk_url
+  def initialize(username, password, domain)
+    @root_uri = "https://#{domain}.zendesk.com/api/v2/help_center/en-us/"
     @articles_uri = @root_uri + 'articles.json'
     @sections_uri = @root_uri + 'sections.json'
     @categories_uri = @root_uri + 'categories.json'
+    @username, @password = username, password
     check_auth
   end
 
@@ -67,8 +68,8 @@ class ZendeskArticle
   def basic_auth
     {
       basic_auth: {
-        username: $zendesk_username,
-        password: $zendesk_password,
+        username: @username,
+        password: @password,
       },
     }
   end

@@ -12,6 +12,7 @@ require 'zentool/version'
 require_relative 'zentool/zendesk_article.rb'
 require_relative 'zentool/article_helper.rb'
 require_relative 'zentool/graph.rb'
+require_relative 'zentool/zendesk_ticket.rb'
 
 options = {}
 
@@ -58,24 +59,18 @@ if options[:option] == NilClass || !options.key?(:option)
 end
 puts
 
-$zendesk_url = "https://#{options[:domain]}.zendesk.com/api/v2/help_center/en-us/"
-$zendesk_username = options[:username]
-$zendesk_password = options[:password]
-
-# Keep everything as-is before this line
-
 case options[:option]
 when "a"
-  a = ArticleHelper.new
+  a = ArticleHelper.new(options[:username], options[:password], options[:domain])
   a.run
 when "t"
-  # t = TicketHelper.new
-  # t.run
+  t = ZendeskTicket.new(options[:username], options[:password], options[:domain])
+  t.run
 when "b"
-  a = ArticleHelper.new
+  a = ArticleHelper.new(options[:username], options[:password], options[:domain])
   a.run
-  # t = TicketHelper.new
-  # t.run
+  t = ZendeskTicket.new(options[:username], options[:password], options[:domain])
+  t.run
 else
   puts "Not a valid option."
 end
