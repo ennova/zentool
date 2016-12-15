@@ -47,7 +47,7 @@ class Graph
               id = extract_IDs(link)
               title = @id_title_hash[id]
               unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
-                referenced_articles << wrap("#{title}\n#{id}")
+                referenced_articles << Graph.wrap("#{title}\n#{id}")
               end
             end
             @article_link_map[article['id']] = referenced_articles
