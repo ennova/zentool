@@ -1,4 +1,4 @@
-require 'spec_helper.rb'
+require 'zentool/graph.rb'
 
 class Graph
   # public :wrap

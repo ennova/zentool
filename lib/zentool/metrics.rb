@@ -51,8 +51,6 @@ class Metrics
     		@tickets_by_development_priority[ticket.info['development_priority']] << ticket.metrics['reply_time_in_minutes']
     	end
     end
-    puts @tickets_by_development_priority
-    # puts @tickets_by_user_priority, @tickets_by_development_priority
     @tickets_by_user_priority.each do |key, value|
     	avg = value.inject(:+).to_f / value.length
     	@avg_user_priority[key] = avg
@@ -61,15 +59,15 @@ class Metrics
    		avg = value.inject(:+).to_f / value.length
     	@avg_development_priority[key] = avg
     end
-    puts @tickets_by_user_priority, @avg_user_priority, @tickets_by_development_priority, @avg_development_priority, @tickets_by_age
+    # puts @tickets_by_user_priority, @avg_user_priority, @tickets_by_development_priority, @avg_development_priority, @tickets_by_age
   end
    
    def graph
-  	puts "Days   Ticket-Count"
+  	puts "Days    Ticket-Count"
 	@tickets_by_age.keys.sort.each do |age|
 	   puts "%3d %5d %s\n" % [age, @tickets_by_age[age], "#" * @tickets_by_age[age]]
 	end
-	puts "Priority Average-Reply-Time"
+	puts "Priority   Average-Reply-Time"
 	@avg_development_priority.keys.sort.each do |development_priority|
 	   puts "%s %5d %s\n" % [development_priority, @avg_development_priority[development_priority], "#" * (@avg_development_priority[development_priority] / 10000)]
 	end

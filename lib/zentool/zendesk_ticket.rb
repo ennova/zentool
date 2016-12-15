@@ -8,7 +8,7 @@ require 'optparse'
 require_relative 'metrics'
 require_relative 'ticket'
 
-class Zendesk
+class ZendeskTicket
   def initialize
     @root_uri = 'https://envisionapp.zendesk.com/api/v2/'
     @start_time = Time.new('2016-01-01').to_i
@@ -118,87 +118,91 @@ puts 'Envision Zendesk Tickets'
 puts '------------------------'
 
 puts '-> Retrieving Tickets'
-zendesk = Zendesk.new
-tickets_in = zendesk.tickets
-puts '   Total tickets = ' + tickets_in.count.to_s
+
+@zendesk = ZendeskTicket.new
+@tickets_in = @zendesk.tickets
+
+puts '   Total tickets = ' + @tickets_in.count.to_s
 puts
 
 puts '-> Generating tickets summary file: all_tickets.csv'
-progressbar = ProgressBar.create(title: "#{tickets_in.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: tickets_in.count)
+progressbar = ProgressBar.create(title: "#{@tickets_in.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: @tickets_in.count)
 
-CSV.open("all_tickets.csv", "wb") do |csv|
-  csv << zendesk.export_columns + zendesk.metric_columns
-# CSV.open("tickets_by_age.csv", "wb") do |csv|
-#   csv << zendesk.metric_columns
-# CSV.open("tickets_by_reply_time.csv", "wb") do |csv|
-#   csv << zendesk.metric_columns
-end
+puts 'Importing tickets from Zendesk into all_tickets.csv'
 
-puts 'Importing tickets from Zendesk into instances of Ticket class'
-
-tickets = Array.new
-tickets_in.first(10).each do |ticket|
-    info = Hash.new
-    metrics_info = Hash.new
-    zendesk.export_columns.each do |column|
-      case column
-      when 'type'
-        info['type'] = ticket['custom_fields'][0]['value']
-      when 'user_priority'
-        info['user_priority'] = ticket['custom_fields'][1]['value']
-      when 'development_priority'
-        value = ticket['custom_fields'][2]['value']
-        if value
-          info['development_priority'] = "d#{value[-1]}" if value[-1].to_i > 0
-        else
-          info['development_priority'] = value
-        end
-      when 'company'
-        info['company'] = ticket['custom_fields'][3]['value']
-      when 'project'
-        info['project'] = ticket['custom_fields'][4]['value']
-      when 'platform'
-        info['platform'] = ticket['custom_fields'][5]['value']
-      when 'function'
-        info['function'] = ticket['custom_fields'][6]['value']
-      when 'satisfaction_rating'
-        info['satisfaction_rating'] = ticket['satisfaction_rating']['score']
-      else
-        info[column] = ticket[column]
-      end
-    end
-
-    begin
-      metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", zendesk.basic_auth)
-      zendesk.metric_columns.each do |column|
-        if metrics['ticket_metric']
-          case column
-          when 'solved_at'
-            metrics_info[column] = metrics['ticket_metric'][column]
-          else
-            metrics_info[column] = metrics['ticket_metric'][column]['business']
-          end
-        end
-      end
-    rescue
-      retry
-    end
-	progressbar.increment
-    this = Ticket.new(info, metrics_info)
-    tickets << this
-
-end
-
-puts 'Writing ticket information to all_tickets.csv'
-tickets.each do |ticket|
-	row = []
-  CSV.open("all_tickets.csv", "a") do |csv|
-    row << ticket.info
-    row << ticket.metrics
-    csv << row
-
-  end
-end
+retrieve_tickets
 
 metrics = Metrics.new(tickets)
 metrics.graph
+
+def retrieve_tickets
+  CSV.open("all_tickets.csv", "wb") do |csv|
+    csv << @zendesk.export_columns + @zendesk.metric_columns
+  end
+  tickets = Array.new
+  @tickets_in.first(10).each do |ticket|
+    CSV.open("all_tickets.csv", "a") do |csv|
+      row = []
+      info = Hash.new
+      metrics_info = Hash.new
+      @zendesk.export_columns.each do |column|
+        case column
+        when 'type'
+          info['type'] = ticket['custom_fields'][0]['value']
+          row << info['type']
+        when 'user_priority'
+          info['user_priority'] = ticket['custom_fields'][1]['value']
+          row << info['type']
+        when 'development_priority'
+          value = ticket['custom_fields'][2]['value']
+          if value
+            info['development_priority'] = "d#{value[-1]}" if value[-1].to_i > 0
+            row << info['type']
+          else
+            info['development_priority'] = value
+            row << info['type']
+          end
+        when 'company'
+          info['company'] = ticket['custom_fields'][3]['value']
+          row << info['type']
+        when 'project'
+          info['project'] = ticket['custom_fields'][4]['value']
+          row << info['type']
+        when 'platform'
+          info['platform'] = ticket['custom_fields'][5]['value']
+          row << info['type']
+        when 'function'
+          info['function'] = ticket['custom_fields'][6]['value']
+          row << info['type']
+        when 'satisfaction_rating'
+          info['satisfaction_rating'] = ticket['satisfaction_rating']['score']
+          row << info['type']
+        else
+          info[column] = ticket[column]
+          row << info['type']
+        end
+      end
+
+      begin
+        metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", @zendesk.basic_auth)
+        @zendesk.metric_columns.each do |column|
+          if metrics['ticket_metric']
+            case column
+            when 'solved_at'
+              metrics_info[column] = metrics['ticket_metric'][column]
+            else
+              metrics_info[column] = metrics['ticket_metric'][column]['business']
+            end
+            row << metrics_info[column]
+          end
+        end
+      rescue
+        retry
+      end
+      this = Ticket.new(info, metrics_info)
+      tickets << this
+      csv << row
+      progressbar.increment
+    end
+  end
+end
