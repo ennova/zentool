@@ -2,15 +2,12 @@
 
 class Graph
   def initialize(articles, sections, categories)
-    @id_title_map = {}
-    @article_link_map = {}
     @articles, @sections, @categories = articles, sections, categories
   end
 
   def generate
-    create_id_title_relationship
-    article_link_map
-    create_id_title_relationship
+    @id_title_map = Graph.create_id_title_map(@articles)
+    @article_link_map = Graph.article_link_map(@articles, @categories, @sections, @id_title_map)
     graph_settings
     graph_nodes
     graph_edges
@@ -21,10 +18,12 @@ class Graph
     s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
   end
 
-  def create_id_title_relationship
-    @articles.each do |article|
-      @id_title_map[article['id']] = article['title']
+  def self.create_id_title_map(articles)
+    x = {}
+    articles.each do |article|
+      x[article['id'].to_s] = article['title']
     end
+    x
   end
 
   def self.extract_links(string)
@@ -35,23 +34,27 @@ class Graph
     string.split(//).map { |x| x[/\d+/] }.compact.join('').to_i
   end
 
-  def article_link_map
-    @articles.each do |article|
-      unless (@categories[@sections[article['section_id']]['category_id']]['name'] == 'Announcements') || (article['body'].class != String)
+  def self.article_link_map(articles, categories, sections, id_title_map)
+    article_link_map = {}
+    articles.each do |article|
+      unless (categories[sections[article['section_id']]['category_id']]['name'] == 'Announcements') || (article['body'].class != String)
         referenced_links = Graph.extract_links(article['body'])
         referenced_articles = []
         unless referenced_links.empty?
           referenced_links.each do |link|
-            id = Graph.extract_IDs(link)
-            title = @id_title_map[id]
+            puts link
+            p =  Graph.extract_IDs(link).to_s
+            id = Graph.extract_IDs(link).to_s
+            title = id_title_map[id]
             unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
               referenced_articles << Graph.wrap("#{title}\n#{id}")
             end
           end
-          @article_link_map[article['id']] = referenced_articles
+          article_link_map[article['id']] = referenced_articles
         end
       end
     end
+    article_link_map
   end
 
   def graph_settings
