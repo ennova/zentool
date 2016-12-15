@@ -1,4 +1,4 @@
-# Zendesk class for pull_articles.rb
+# Interface with zendesk to access articles
 
 class ZendeskArticle
   def initialize
