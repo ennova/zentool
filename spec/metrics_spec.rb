@@ -22,11 +22,20 @@ describe Metrics do
 	    		expect(@metrics).to be_an_instance_of Metrics
 	  		end
 
-	  		it 'populated with tickets' do
+	  		it 'populated correctly' do
 	  			expect(@metrics.tickets).to eql(@tickets)
+	  		end
+
+	  		it 'contains an array of tickets' do
+	  			expect(@metrics.tickets).to be_an_instance_of Array
+	  			expect(@metrics.tickets.map(&:class).uniq).to eq [Ticket]
 	  		end
 	  	end
 	end
+
+	# describe '.graph' do
+	# 	context ''
+	# end
 
 	def create_metrics
 		info1 = {'id' => 1, 'type' => 'abc', 'subject' => 'abc', 'status' => 'abc', 'user_priority' => 'abc', 

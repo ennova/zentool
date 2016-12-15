@@ -89,7 +89,7 @@ class ZendeskTicket
 
     tickets = Array.new
 
-    tickets_in.first(10).each do |ticket|
+    tickets_in.first(50).each do |ticket|
       CSV.open("all_tickets.csv", "a") do |csv|
         row = []
         info = Hash.new

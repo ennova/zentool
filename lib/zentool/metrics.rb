@@ -2,6 +2,7 @@
 class Metrics
 
   MINUTES_IN_DAY = 1440
+  SCREEN_WIDTH = 10000
   attr_accessor :tickets, :tickets_by_age, :tickets_by_user_priority, :tickets_by_development_priority
 
   def initialize(tickets)
@@ -52,24 +53,31 @@ class Metrics
     	end
     end
     @tickets_by_user_priority.each do |key, value|
+        if key == nil
+            key = 'None'
+        end
     	avg = value.inject(:+).to_f / value.length
     	@avg_user_priority[key] = avg
     end
-   @tickets_by_development_priority.each do |key, value|
+    @tickets_by_development_priority.each do |key, value|
+        if key == nil
+            key = 'None'
+        end
    		avg = value.inject(:+).to_f / value.length
     	@avg_development_priority[key] = avg
     end
     # puts @tickets_by_user_priority, @avg_user_priority, @tickets_by_development_priority, @avg_development_priority, @tickets_by_age
   end
-   
-   def graph
+
+   #draws command line graph based on ticket metrics
+  def graph
   	puts "Days    Ticket-Count"
 	@tickets_by_age.keys.sort.each do |age|
 	   puts "%3d %5d %s\n" % [age, @tickets_by_age[age], "#" * @tickets_by_age[age]]
 	end
 	puts "Priority   Average-Reply-Time"
 	@avg_development_priority.keys.sort.each do |development_priority|
-	   puts "%s %5d %s\n" % [development_priority, @avg_development_priority[development_priority], "#" * (@avg_development_priority[development_priority] / 10000)]
+	   puts "%s %5d %s\n" % [development_priority, @avg_development_priority[development_priority], "#" * (@avg_development_priority[development_priority] / SCREEN_WIDTH)]
 	end
-   end
+  end
 end
