@@ -10,7 +10,9 @@ require 'optparse'
 
 require 'zentool/version'
 require_relative 'zentool/zendesk_article.rb'
+require_relative 'zentool/article_helper.rb'
 require_relative 'zentool/graph.rb'
+require_relative 'zentool/zendesk_ticket.rb'
 
 options = {}
 
@@ -29,94 +31,46 @@ OptionParser.new do |parser|
     options[:password] = v
   end
 
-  parser.on('-l', '--link LINK', 'The Zendesk URL.') do |v|
-    options[:url] = v
+  parser.on('-d', '--domain DOMAIN', 'The domain for zendesk. e.g. https://[YOUR_DOMAIN].zendesk.com/api/v2/help_center/en-us/') do |v|
+    options[:domain] = v
+  end
+
+  parser.on('-o', '--option OPTION', 'article, tickets or both.') do |v|
+    options[:option] = v.downcase[0]
   end
 end.parse!
 
-if options[:url] == NilClass || !options.key?(:url)
-  print 'Zendesk URL: '
-  options[:url] = gets.chomp
-  puts
+if options[:domain] == NilClass || !options.key?(:domain)
+  print 'Zendesk domain: '
+  options[:domain] = gets.chomp
 end
 if options[:username] == NilClass || !options.key?(:username)
   print 'Zendesk username: '
   options[:username] = gets.chomp
-  puts
 end
 if options[:password] == NilClass || !options.key?(:password)
   print 'Zendesk password: '
   options[:password] = STDIN.noecho(&:gets).chomp
   puts
 end
-
+if options[:option] == NilClass || !options.key?(:option)
+  print 'Option (article, ticket or both): '
+  options[:option] = gets.chomp.downcase[0]
+end
 puts
 
-$zendesk_url = options[:url]
-$zendesk_username = options[:username]
-$zendesk_password = options[:password]
-
-puts ' Envision Zendesk Articles'
-puts '---------------------------'
-
-puts '-> Retrieving Categories'
-zendesk = ZendeskArticle.new
-categories = Hash[zendesk.categories.collect { |s| [s['id'], s] }]
-
-puts "\n-> Retrieving Sections"
-zendesk = ZendeskArticle.new
-sections = Hash[zendesk.sections.collect { |s| [s['id'], s] }]
-
-puts "\n-> Retrieving Articles\n"
-zendesk = ZendeskArticle.new
-articles = zendesk.articles
-puts
-
-puts '-> Generating article summary file: all_articles.csv'
-CSV.open('all_articles.csv', 'wb') do |csv|
-  csv << zendesk.export_columns
-  articles.each do |hash|
-    row = []
-    zendesk.export_columns.each do |column|
-      case column
-      when 'category'
-        row << categories[sections[hash['section_id']]['category_id']]['name']
-      when 'section'
-        row << sections[hash['section_id']]['name']
-      when 'word_count'
-        row << Nokogiri::HTML.parse(hash['body']).text.squish.split(' ').size
-      else
-        row << hash[column]
-      end
-    end
-    csv << row
-  end
+case options[:option]
+when "a"
+  a = ArticleHelper.new(options[:username], options[:password], options[:domain])
+  a.run
+when "t"
+  t = ZendeskTicket.new(options[:username], options[:password], options[:domain])
+  t.run
+when "b"
+  a = ArticleHelper.new(options[:username], options[:password], options[:domain])
+  a.run
+  t = ZendeskTicket.new(options[:username], options[:password], options[:domain])
+  t.run
+else
+  puts "Not a valid option."
 end
-
-directory = "./articles-#{DateTime.now}"
-
-search_message = 'not yet available'
-found_articles = []
-
-puts "-> Generating individual article files in #{directory}"
-Dir.mkdir(directory)
-articles.each do |article|
-  filename = "#{article['name']}.html".tr(' ', '-').tr('/', ':')
-  filepath = "#{directory}/#{filename}"
-  if article['body']
-    File.open(filepath, 'w') { |f| f.write(article['body']) }
-    found_articles << filename if article['body'].include? search_message
-  end
-end
-
-puts "-> Generating summary of problem articles in #{directory}"
-File.open('problem_articles.csv', 'w') do |file|
-  file.puts 'article_filename'
-  found_articles.each do |article_filename|
-    file.puts(article_filename)
-    puts '   - ' + article_filename
-  end
-end
-
-graph = Graph.new(articles, sections, categories)
-graph.generate

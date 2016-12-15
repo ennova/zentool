@@ -9,10 +9,11 @@ require_relative 'metrics'
 require_relative 'ticket'
 
 class ZendeskTicket
-  def initialize
-    @root_uri = 'https://envisionapp.zendesk.com/api/v2/'
+  def initialize(username, password, domain)
+    @root_uri = "https://#{domain}.zendesk.com/api/v2/"
     @start_time = Time.new('2016-01-01').to_i
     @tickets_uri = @root_uri + "incremental/tickets.json?start_time=#{@start_time}"
+    @username, @password = username, password
     check_auth
   end
 
@@ -46,7 +47,7 @@ class ZendeskTicket
     end
     tickets
   end
-    
+
   def export_columns
     ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority', 'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
   end
@@ -58,8 +59,8 @@ class ZendeskTicket
   def basic_auth
     {
       basic_auth: {
-        username: $zendesk_username,
-        password: $zendesk_password,
+        username: @username,
+        password: @password,
       },
     }
   end
@@ -157,54 +158,3 @@ class ZendeskTicket
     tickets
   end
 end
-
-# begin script
-# system 'clear'
-
-# options = {}
-
-# OptionParser.new do |parser|
-#   parser.banner = "Usage: zentool [options]"
-
-#   parser.on("-h", "--help", "Show this help message") do ||
-#     puts parser
-#   end
-
-#   parser.on("-u", "--username USERNAME", "The username for the Zendesk.") do |v|
-#     options[:username] = v
-#   end
-
-#   parser.on("-p", "--password PASSWORD", "The password for the Zendesk.") do |v|
-#     options[:password] = v
-#   end
-
-#   parser.on("-l", "--link LINK", "The Zendesk URL.") do |v|
-#     options[:url] = v
-#   end
-# end.parse!
-
-# def wrap(s, width = 20)
-#   s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
-# end
-
-# if options[:url] == NilClass || !options.key?(:url)
-#   print 'Zendesk URL: '
-#   options[:url] = gets.chomp
-#   puts
-# end
-# if options[:username] == NilClass || !options.key?(:username)
-#   print 'Zendesk username: '
-#   options[:username] = gets.chomp
-#   puts
-# end
-# if options[:password] == NilClass || !options.key?(:password)
-#   print 'Zendesk password: '
-#   options[:password] = STDIN.noecho(&:gets).chomp
-#   puts
-# end
-
-# puts
-
-# $zendesk_url = options[:url]
-# $zendesk_username = options[:username]
-# $zendesk_password = options[:password]
