@@ -10,6 +10,7 @@ require 'optparse'
 
 require 'zentool/version'
 require_relative 'zentool/zendesk_article.rb'
+require_relative 'zentool/article_helper.rb'
 require_relative 'zentool/graph.rb'
 
 options = {}
@@ -29,34 +30,52 @@ OptionParser.new do |parser|
     options[:password] = v
   end
 
-  parser.on('-l', '--link LINK', 'The Zendesk URL.') do |v|
-    options[:url] = v
+  parser.on('-d', '--domain DOMAIN', 'The domain for zendesk. e.g. https://[YOUR_DOMAIN].zendesk.com/api/v2/help_center/en-us/') do |v|
+    options[:domain] = v
+  end
+
+  parser.on('-o', '--option OPTION', 'article, tickets or both.') do |v|
+    options[:option] = v.downcase[0]
   end
 end.parse!
 
-if options[:url] == NilClass || !options.key?(:url)
-  print 'Zendesk URL: '
-  options[:url] = gets.chomp
-  puts
+if options[:domain] == NilClass || !options.key?(:domain)
+  print 'Zendesk domain: '
+  options[:domain] = gets.chomp
 end
 if options[:username] == NilClass || !options.key?(:username)
   print 'Zendesk username: '
   options[:username] = gets.chomp
-  puts
 end
 if options[:password] == NilClass || !options.key?(:password)
   print 'Zendesk password: '
   options[:password] = STDIN.noecho(&:gets).chomp
   puts
 end
-
+if options[:option] == NilClass || !options.key?(:option)
+  print 'Option (article, ticket or both): '
+  options[:option] = gets.chomp.downcase[0]
+end
 puts
 
-$zendesk_url = options[:url]
+$zendesk_url = "https://#{options[:domain]}.zendesk.com/api/v2/help_center/en-us/"
 $zendesk_username = options[:username]
 $zendesk_password = options[:password]
 
 # Keep everything as-is before this line
 
-i = ArticleHelper.new
-i.run
+case options[:option]
+when "a"
+  a = ArticleHelper.new
+  a.run
+when "t"
+  # t = TicketHelper.new
+  # t.run
+when "b"
+  a = ArticleHelper.new
+  a.run
+  # t = TicketHelper.new
+  # t.run
+else
+  puts "Not a valid option."
+end
