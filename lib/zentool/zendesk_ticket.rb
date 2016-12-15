@@ -16,6 +16,17 @@ class ZendeskTicket
     check_auth
   end
 
+  def run
+    puts 'Envision Zendesk Tickets'
+    puts '------------------------'
+    puts '-> Retrieving Tickets'
+
+    tickets_in = self.tickets
+    tickets = self.retrieve_tickets(tickets_in)
+    metrics = Metrics.new(tickets)
+    metrics.graph
+  end
+
   def tickets
     @tickets ||= begin
 
@@ -60,149 +71,140 @@ class ZendeskTicket
       abort
     end
   end
-end
 
+  def retrieve_tickets(tickets_in)
 
-# begin script
-system 'clear'
+    puts '   Total tickets = ' + tickets_in.count.to_s
+    puts
+    puts '-> Generating tickets summary file: all_tickets.csv'
 
-options = {}
+    progressbar = ProgressBar.create(title: "#{tickets_in.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: tickets_in.count)
 
-OptionParser.new do |parser|
-  parser.banner = "Usage: zentool [options]"
+    puts 'Importing tickets from Zendesk into all_tickets.csv'
 
-  parser.on("-h", "--help", "Show this help message") do ||
-    puts parser
-  end
+    CSV.open("all_tickets.csv", "wb") do |csv|
+      csv << self.export_columns + self.metric_columns
+    end
 
-  parser.on("-u", "--username USERNAME", "The username for the Zendesk.") do |v|
-    options[:username] = v
-  end
+    tickets = Array.new
 
-  parser.on("-p", "--password PASSWORD", "The password for the Zendesk.") do |v|
-    options[:password] = v
-  end
-
-  parser.on("-l", "--link LINK", "The Zendesk URL.") do |v|
-    options[:url] = v
-  end
-end.parse!
-
-def wrap(s, width = 20)
-  s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
-end
-
-if options[:url] == NilClass || !options.key?(:url)
-  print 'Zendesk URL: '
-  options[:url] = gets.chomp
-  puts
-end
-if options[:username] == NilClass || !options.key?(:username)
-  print 'Zendesk username: '
-  options[:username] = gets.chomp
-  puts
-end
-if options[:password] == NilClass || !options.key?(:password)
-  print 'Zendesk password: '
-  options[:password] = STDIN.noecho(&:gets).chomp
-  puts
-end
-
-puts
-
-$zendesk_url = options[:url]
-$zendesk_username = options[:username]
-$zendesk_password = options[:password]
-
-puts 'Envision Zendesk Tickets'
-puts '------------------------'
-
-puts '-> Retrieving Tickets'
-
-@zendesk = ZendeskTicket.new
-@tickets_in = @zendesk.tickets
-
-puts '   Total tickets = ' + @tickets_in.count.to_s
-puts
-
-puts '-> Generating tickets summary file: all_tickets.csv'
-progressbar = ProgressBar.create(title: "#{@tickets_in.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: @tickets_in.count)
-
-puts 'Importing tickets from Zendesk into all_tickets.csv'
-
-retrieve_tickets
-
-metrics = Metrics.new(tickets)
-metrics.graph
-
-def retrieve_tickets
-  CSV.open("all_tickets.csv", "wb") do |csv|
-    csv << @zendesk.export_columns + @zendesk.metric_columns
-  end
-  tickets = Array.new
-  @tickets_in.first(10).each do |ticket|
-    CSV.open("all_tickets.csv", "a") do |csv|
-      row = []
-      info = Hash.new
-      metrics_info = Hash.new
-      @zendesk.export_columns.each do |column|
-        case column
-        when 'type'
-          info['type'] = ticket['custom_fields'][0]['value']
-          row << info['type']
-        when 'user_priority'
-          info['user_priority'] = ticket['custom_fields'][1]['value']
-          row << info['type']
-        when 'development_priority'
-          value = ticket['custom_fields'][2]['value']
-          if value
-            info['development_priority'] = "d#{value[-1]}" if value[-1].to_i > 0
+    tickets_in.first(10).each do |ticket|
+      CSV.open("all_tickets.csv", "a") do |csv|
+        row = []
+        info = Hash.new
+        metrics_info = Hash.new
+        self.export_columns.each do |column|
+          case column
+          when 'type'
+            info['type'] = ticket['custom_fields'][0]['value']
+            row << info['type']
+          when 'user_priority'
+            info['user_priority'] = ticket['custom_fields'][1]['value']
+            row << info['type']
+          when 'development_priority'
+            value = ticket['custom_fields'][2]['value']
+            if value
+              info['development_priority'] = "d#{value[-1]}" if value[-1].to_i > 0
+              row << info['type']
+            else
+              info['development_priority'] = value
+              row << info['type']
+            end
+          when 'company'
+            info['company'] = ticket['custom_fields'][3]['value']
+            row << info['type']
+          when 'project'
+            info['project'] = ticket['custom_fields'][4]['value']
+            row << info['type']
+          when 'platform'
+            info['platform'] = ticket['custom_fields'][5]['value']
+            row << info['type']
+          when 'function'
+            info['function'] = ticket['custom_fields'][6]['value']
+            row << info['type']
+          when 'satisfaction_rating'
+            info['satisfaction_rating'] = ticket['satisfaction_rating']['score']
             row << info['type']
           else
-            info['development_priority'] = value
+            info[column] = ticket[column]
             row << info['type']
           end
-        when 'company'
-          info['company'] = ticket['custom_fields'][3]['value']
-          row << info['type']
-        when 'project'
-          info['project'] = ticket['custom_fields'][4]['value']
-          row << info['type']
-        when 'platform'
-          info['platform'] = ticket['custom_fields'][5]['value']
-          row << info['type']
-        when 'function'
-          info['function'] = ticket['custom_fields'][6]['value']
-          row << info['type']
-        when 'satisfaction_rating'
-          info['satisfaction_rating'] = ticket['satisfaction_rating']['score']
-          row << info['type']
-        else
-          info[column] = ticket[column]
-          row << info['type']
         end
-      end
 
-      begin
-        metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", @zendesk.basic_auth)
-        @zendesk.metric_columns.each do |column|
-          if metrics['ticket_metric']
-            case column
-            when 'solved_at'
-              metrics_info[column] = metrics['ticket_metric'][column]
-            else
-              metrics_info[column] = metrics['ticket_metric'][column]['business']
+        begin
+          metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", self.basic_auth)
+          self.metric_columns.each do |column|
+            if metrics['ticket_metric']
+              case column
+              when 'solved_at'
+                metrics_info[column] = metrics['ticket_metric'][column]
+              else
+                metrics_info[column] = metrics['ticket_metric'][column]['business']
+              end
+              row << metrics_info[column]
             end
-            row << metrics_info[column]
           end
+        rescue
+          retry
         end
-      rescue
-        retry
+
+        this = Ticket.new(info, metrics_info)
+        tickets << this
+        csv << row
+        progressbar.increment
       end
-      this = Ticket.new(info, metrics_info)
-      tickets << this
-      csv << row
-      progressbar.increment
     end
+    tickets
   end
 end
+
+# begin script
+# system 'clear'
+
+# options = {}
+
+# OptionParser.new do |parser|
+#   parser.banner = "Usage: zentool [options]"
+
+#   parser.on("-h", "--help", "Show this help message") do ||
+#     puts parser
+#   end
+
+#   parser.on("-u", "--username USERNAME", "The username for the Zendesk.") do |v|
+#     options[:username] = v
+#   end
+
+#   parser.on("-p", "--password PASSWORD", "The password for the Zendesk.") do |v|
+#     options[:password] = v
+#   end
+
+#   parser.on("-l", "--link LINK", "The Zendesk URL.") do |v|
+#     options[:url] = v
+#   end
+# end.parse!
+
+# def wrap(s, width = 20)
+#   s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
+# end
+
+# if options[:url] == NilClass || !options.key?(:url)
+#   print 'Zendesk URL: '
+#   options[:url] = gets.chomp
+#   puts
+# end
+# if options[:username] == NilClass || !options.key?(:username)
+#   print 'Zendesk username: '
+#   options[:username] = gets.chomp
+#   puts
+# end
+# if options[:password] == NilClass || !options.key?(:password)
+#   print 'Zendesk password: '
+#   options[:password] = STDIN.noecho(&:gets).chomp
+#   puts
+# end
+
+# puts
+
+# $zendesk_url = options[:url]
+# $zendesk_username = options[:username]
+# $zendesk_password = options[:password]
