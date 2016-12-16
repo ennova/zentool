@@ -6,11 +6,11 @@ class Graph
   end
 
   def generate
-    @id_title_map = Graph.create_id_title_map(@articles)
-    @article_link_map = Graph.article_link_map(@articles, @categories, @sections, @id_title_map)
+    id_title_map = Graph.create_id_title_map(@articles)
+    @article_link_map = Graph.article_link_map(@articles, @categories, @sections, id_title_map)
     graph_settings
-    graph_nodes
-    graph_edges
+    graph_nodes(id_title_map)
+    graph_edges(id_title_map)
     @g.output(png: 'article_relationships.png')
   end
 
@@ -21,7 +21,7 @@ class Graph
   def self.create_id_title_map(articles)
     x = {}
     articles.each do |article|
-      x[article['id'].to_s] = article['title']
+      x[article['id'].to_i] = article['title']
     end
     x
   end
@@ -42,9 +42,7 @@ class Graph
         referenced_articles = []
         unless referenced_links.empty?
           referenced_links.each do |link|
-            puts link
-            p =  Graph.extract_IDs(link).to_s
-            id = Graph.extract_IDs(link).to_s
+            id = Graph.extract_IDs(link)
             title = id_title_map[id]
             unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
               referenced_articles << Graph.wrap("#{title}\n#{id}")
@@ -61,36 +59,36 @@ class Graph
     $LOAD_PATH.unshift('../lib')
     @g = GraphViz.new('G')
 
-    @g.node[:color] = '#222222'
-    @g.node[:style] = 'filled'
-    @g.node[:shape] = 'box'
-    @g.node[:penwidth] = '1'
-    @g.node[:fontname] = 'Helvetica'
+    @g.node[:color]     = '#222222'
+    @g.node[:style]     = 'filled'
+    @g.node[:shape]     = 'box'
+    @g.node[:penwidth]  = '1'
+    @g.node[:fontname]  = 'Helvetica'
     @g.node[:fillcolor] = '#eeeeee'
     @g.node[:fontcolor] = '#333333'
-    @g.node[:margin] = '0.05'
-    @g.node[:fontsize] = '12'
-    @g.edge[:color] = '#666666'
-    @g.edge[:weight] = '1'
-    @g.edge[:fontsize] = '10'
+    @g.node[:margin]    = '0.05'
+    @g.node[:fontsize]  = '12'
+    @g.edge[:color]     = '#666666'
+    @g.edge[:weight]    = '1'
+    @g.edge[:fontsize]  = '10'
     @g.edge[:fontcolor] = '#444444'
-    @g.edge[:fontname] = 'Helvetica'
-    @g.edge[:dir] = 'forward'
+    @g.edge[:fontname]  = 'Helvetica'
+    @g.edge[:dir]       = 'forward'
     @g.edge[:arrowsize] = '1'
     @g.edge[:arrowhead] = 'vee'
   end
 
-  def graph_nodes
+  def graph_nodes(id_title_map)
     nodes = []
     @article_link_map.each do |id, _referenced_articles|
-      nodes << Graph.wrap("#{@id_title_map[id]}\n#{id}")
+      nodes << Graph.wrap("#{id_title_map[id]}\n#{id}")
     end
     @g.add_nodes(nodes)
   end
 
-  def graph_edges
+  def graph_edges(id_title_map)
     @article_link_map.each do |id, referenced_articles|
-      @g.add_edges(Graph.wrap("#{@id_title_map[id]}\n#{id}"), referenced_articles.map(&:to_s))
+      @g.add_edges(Graph.wrap("#{id_title_map[id]}\n#{id}"), referenced_articles.map(&:to_s))
     end
   end
 end

@@ -89,7 +89,11 @@ class ZendeskTicket
 
     tickets = Array.new
 
-    tickets_in.first(50).each do |ticket|
+    print "Enter number of tickets (max of #{tickets_in.count.to_s}): "
+    number_of_tickets = gets.chomp.to_i
+    puts
+
+    tickets_in.first(number_of_tickets).each do |ticket|
       CSV.open("all_tickets.csv", "a") do |csv|
         row = []
         info = Hash.new
@@ -101,31 +105,31 @@ class ZendeskTicket
             row << info['type']
           when 'user_priority'
             info['user_priority'] = ticket['custom_fields'][1]['value']
-            row << info['type']
+            row << info['user_priority']
           when 'development_priority'
             value = ticket['custom_fields'][2]['value']
             if value
               info['development_priority'] = "d#{value[-1]}" if value[-1].to_i > 0
-              row << info['type']
+              row << info['development_priority']
             else
               info['development_priority'] = value
-              row << info['type']
+              row << info['development_priority']
             end
           when 'company'
             info['company'] = ticket['custom_fields'][3]['value']
-            row << info['type']
+            row << info['company']
           when 'project'
             info['project'] = ticket['custom_fields'][4]['value']
-            row << info['type']
+            row << info['project']
           when 'platform'
             info['platform'] = ticket['custom_fields'][5]['value']
-            row << info['type']
+            row << info['platform']
           when 'function'
             info['function'] = ticket['custom_fields'][6]['value']
-            row << info['type']
+            row << info['function']
           when 'satisfaction_rating'
             info['satisfaction_rating'] = ticket['satisfaction_rating']['score']
-            row << info['type']
+            row << info['satisfaction_rating']
           else
             info[column] = ticket[column]
             row << info['type']
