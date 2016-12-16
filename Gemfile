@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
 gem 'nokogiri'
-gem 'activesupport'
 gem 'httparty'
 gem 'ruby-progressbar'
 gem 'pry'
