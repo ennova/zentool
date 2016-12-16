@@ -73,7 +73,7 @@ describe Graph do
     context 'given an array of hashes of articles w/ id + titles' do
       it 'creates a hash article id: titles' do
         articles_input = [{'id' => 10, 'title' => 'ten'}, {'id' => 74365, 'title' => 'Green eggs and ham'}, {'id' => 333, 'title' => 'cat mat bat'}]
-        article_output = {'10' => 'ten', '74365' => 'Green eggs and ham', '333' => 'cat mat bat'}
+        article_output = {10 => 'ten', 74365 => 'Green eggs and ham', 333 => 'cat mat bat'}
         expect(Graph.create_id_title_map(articles_input)).to eql(article_output)
       end
     end
