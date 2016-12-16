@@ -20,10 +20,6 @@ Style/LeadingCommentSpace:
 Style/ExtraSpacing:
   Enabled: true
 
-Style/TrailingComma:
-  Enabled: true
-  EnforcedStyleForMultiline: comma
-
 Lint/DeprecatedClassMethods:
   Enabled: true
 
