@@ -20,7 +20,7 @@ class ZendeskTicket
   def run
     puts 'Envision Zendesk Tickets'
     puts '------------------------'
-    puts '-> Retrieving Tickets'
+    puts '-> Retrieving Tickets...'
 
     tickets_in = self.tickets
     tickets = self.retrieve_tickets(tickets_in)
@@ -49,11 +49,13 @@ class ZendeskTicket
   end
 
   def export_columns
-    ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority', 'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
+    ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority',
+     'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
   end
 
   def metric_columns
-    ['initially_assigned_at', 'solved_at', 'full_resolution_time_in_minutes', 'requester_wait_time_in_minutes', 'reply_time_in_minutes']
+    ['initially_assigned_at', 'solved_at', 'full_resolution_time_in_minutes', 
+      'requester_wait_time_in_minutes', 'reply_time_in_minutes']
   end
 
   def basic_auth
@@ -77,11 +79,6 @@ class ZendeskTicket
 
     puts '   Total tickets = ' + tickets_in.count.to_s
     puts
-    puts '-> Generating tickets summary file: all_tickets.csv'
-
-    progressbar = ProgressBar.create(title: "#{tickets_in.count} Tickets", starting_at: 1, format: '%a |%b>>%i| %p%% %t', total: tickets_in.count)
-
-    puts 'Importing tickets from Zendesk into all_tickets.csv'
 
     CSV.open("all_tickets.csv", "wb") do |csv|
       csv << self.export_columns + self.metric_columns
@@ -92,6 +89,9 @@ class ZendeskTicket
     print "Enter number of tickets (max of #{tickets_in.count.to_s}): "
     number_of_tickets = gets.chomp.to_i
     puts
+
+    progressbar = ProgressBar.create(title: "#{number_of_tickets} Tickets", 
+      starting_at: 0, format: '%a |%b>>%i| %p%% %t', total: number_of_tickets)
 
     tickets_in.first(number_of_tickets).each do |ticket|
       CSV.open("all_tickets.csv", "a") do |csv|

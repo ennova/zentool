@@ -14,7 +14,6 @@ class Metrics
     unsolved_age
     solved_age
     avg_priority
-    # puts @tickets_by_user_priority, @avg_user_priority, @tickets_by_development_priority, @avg_development_priority, @solved_tickets_by_age
   end
 
   #Creates plot data for number of solved tickets by age
@@ -115,11 +114,11 @@ class Metrics
 
       if reply_time
           
-          #Add reply time to array with key = user_priority, create a new key if not exists
-          @tickets_by_user_priority[user_priority] << reply_time
+        #Add reply time to array with key = user_priority, create a new key if not exists
+        @tickets_by_user_priority[user_priority] << reply_time
 
-          #Add reply time to array with key = development_priority, create a new key if not exists
-          @tickets_by_development_priority[ticket.info['development_priority']] << ticket.metrics['reply_time_in_minutes']
+        #Add reply time to array with key = development_priority, create a new key if not exists
+        @tickets_by_development_priority[ticket.info['development_priority']] << ticket.metrics['reply_time_in_minutes']
       end
     end
 
