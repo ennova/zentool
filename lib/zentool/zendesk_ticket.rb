@@ -53,7 +53,7 @@ class ZendeskTicket
   end
 
   def metric_columns
-    ['solved_at', 'full_resolution_time_in_minutes', 'requester_wait_time_in_minutes', 'reply_time_in_minutes']
+    ['initially_assigned_at', 'solved_at', 'full_resolution_time_in_minutes', 'requester_wait_time_in_minutes', 'reply_time_in_minutes']
   end
 
   def basic_auth
@@ -137,11 +137,11 @@ class ZendeskTicket
         end
 
         begin
-          metrics = HTTParty.get("https://envisionapp.zendesk.com/api/v2/tickets/#{ticket['id']}/metrics.json", self.basic_auth)
+          metrics = HTTParty.get("#{@root_uri}tickets/#{ticket['id']}/metrics.json", self.basic_auth)
           self.metric_columns.each do |column|
             if metrics['ticket_metric']
               case column
-              when 'solved_at'
+              when 'solved_at', 'initially_assigned_at'
                 metrics_info[column] = metrics['ticket_metric'][column]
               else
                 metrics_info[column] = metrics['ticket_metric'][column]['business']
