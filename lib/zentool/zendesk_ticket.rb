@@ -26,6 +26,7 @@ class ZendeskTicket
     tickets = self.retrieve_tickets(tickets_in)
     metrics = Metrics.new(tickets)
     metrics.graph
+    metrics.save
   end
 
   def tickets

@@ -1,3 +1,4 @@
+require 'csv'
 require 'date'
 
 # Represents an aggregate of metrics from multiple tickets 
@@ -7,7 +8,8 @@ class Metrics
   MINUTES_IN_HOUR = 60
   PLOT_WIDTH = 200
   CURRENT_DATE = Date.today
-  attr_accessor :tickets, :tickets_by_age, :tickets_by_user_priority, :tickets_by_development_priority
+  attr_accessor :tickets, :unsolved_tickets_by_age_log_scale, :solved_tickets_by_age_log_scale,
+    :tickets_by_user_priority, :tickets_by_development_priority
 
   def initialize(tickets)
     @tickets = tickets
@@ -137,6 +139,7 @@ class Metrics
         avg = value.inject(:+).to_f / value.length
         @avg_development_priority[key] = avg / MINUTES_IN_HOUR
     end
+    @avg_development_priority.keys.sort!
   end
 
    #draws command line graph based on ticket metrics
@@ -163,9 +166,38 @@ class Metrics
     puts 'Average First Reply Time by Ticket Priority'
     puts '___________________________________________'
   	puts 'Priority   Reply-Time-Hours'
-  	@avg_development_priority.keys.sort.each do |development_priority|
+  	@avg_development_priority.keys.each do |development_priority|
       printf "%-10s %5d %s \n" % [development_priority, @avg_development_priority[development_priority], 
         '#' * (@avg_development_priority[development_priority] / PLOT_WIDTH)]
   	end
+  end
+
+  def save
+    CSV.open("solved_tickets_by_age.csv", "wb") do |csv|
+      csv << ['Days', 'Ticket-Count']
+    end
+    @solved_tickets_by_age_log_scale.keys.each do |age|
+      CSV.open("solved_tickets_by_age.csv", "a") do |csv|
+        csv << [age, @solved_tickets_by_age_log_scale[age]]
+      end
+    end
+
+    CSV.open("unsolved_tickets_by_age.csv", "wb") do |csv|
+      csv << ['Days', 'Ticket-Count']
+    end
+    @unsolved_tickets_by_age_log_scale.keys.each do |age|
+      CSV.open("unsolved_tickets_by_age.csv", "a") do |csv|
+        csv << [age, @unsolved_tickets_by_age_log_scale[age]]
+      end
+    end
+
+    CSV.open("avg_reply_time_priority.csv", "wb") do |csv|
+      csv << ['Priority', 'Average-Reply-Time']
+    end
+    @avg_development_priority.keys.each do |age|
+      CSV.open("avg_reply_time_priority.csv", "a") do |csv|
+        csv << [age, @avg_development_priority[age]]
+      end
+    end
   end
 end
