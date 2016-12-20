@@ -22,20 +22,25 @@ class Metrics
   end
 
   def plot_as_log(tickets_by_log_scale, age)
-    if age <= 5
-      tickets_by_log_scale[age.to_s] += 1
-    elsif age <= 10
-      tickets_by_log_scale['6-10'] += 1
-    elsif age <= 20
-      tickets_by_log_scale['11-20'] += 1
-    elsif age <= 50
-      tickets_by_log_scale['21-50'] += 1
-    elsif age <= 100
-      tickets_by_log_scale['51-100'] += 1
-    else
-      tickets_by_log_scale['101+'] += 1
+    begin
+      if age <= 5
+        tickets_by_log_scale[age.to_s] += 1
+      elsif age <= 10
+        tickets_by_log_scale['6-10'] += 1
+      elsif age <= 20
+        tickets_by_log_scale['11-20'] += 1
+      elsif age <= 50
+        tickets_by_log_scale['21-50'] += 1
+      elsif age <= 100
+        tickets_by_log_scale['51-100'] += 1
+      else
+        tickets_by_log_scale['101+'] += 1
+      end
+      tickets_by_log_scale
+    rescue NoMethodError
+      
+      binding.pry
     end
-    tickets_by_log_scale
   end
 
   # Creates plot data for number of solved tickets by age
@@ -50,7 +55,7 @@ class Metrics
         if metrics['initially_assigned_at']
           start_date = Date.parse metrics['initially_assigned_at']
           age = (CURRENT_DATE - start_date).to_i
-          @solved_tickets_by_age_log_scale = plot_as_log(@solved_tickets_by_age_log_scale, age)
+          @unsolved_tickets_by_age_log_scale = plot_as_log(@unsolved_tickets_by_age_log_scale, age)
         end
       end
     end
