@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'zentool/graph.rb'
 require 'zentool/article_helper.rb'
 
@@ -38,7 +39,7 @@ describe Graph do
     end
     context "given 'Hello this is a test string being used for photosythetic supercalifragilisticexpialadocius'" do
        it "returns 'Hello this is a\ntest string being used for\nphotosythetic\nsupercalifragilisticexpialadocius\n'" do
-         expect(Graph.wrap("Hello this is a test string being used for photosythetic supercalifragilisticexpialadocius")).to eql("Hello this is a\ntest string\nbeing used for\nphotosythetic\nsupercalifragilisticexpialadocius\n")
+         expect(Graph.wrap('Hello this is a test string being used for photosythetic supercalifragilisticexpialadocius')).to eql("Hello this is a\ntest string\nbeing used for\nphotosythetic\nsupercalifragilisticexpialadocius\n")
        end
      end
   end

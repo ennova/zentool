@@ -8,6 +8,7 @@ gem 'rubocop'
 gem 'ruby-graphviz'
 gem 'ruby-progressbar'
 gem 'rubysl-optparse'
+gem 'simplecov'
 
 # Specify your gem's dependencies in zentool.gemspec
 gemspec

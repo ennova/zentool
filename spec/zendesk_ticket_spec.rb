@@ -1,11 +1,18 @@
-require_relative '../lib/zentool/zendesk_ticket'
+require 'spec_helper'
+# require 'webmock'
+# require_relative '../lib/zentool/zendesk_ticket'
 
-describe ZendeskTicket do
-	before :all do
-		create_zendesk_tickets
-	end
+# Webmock.disable_net_connect!(:allow_localhost => true)
 
-	def create_zendesk_tickets
-		
-	end
-end
+# describe ZendeskTicket do
+# 	before :all do
+# 		response = ''
+# 	end
+
+# 	describe '#new'
+
+# 	end
+
+# 	# def create_zendesk_tickets
+# 	# end
+# end

@@ -22,23 +22,24 @@ class ZendeskTicket
     puts '------------------------'
     puts '-> Retrieving Tickets...'
 
-    tickets_in = self.tickets
-    tickets = self.retrieve_tickets(tickets_in)
+    tickets_in = self.download_tickets
+    tickets = self.retrieve_fields(tickets_in)
     metrics = Metrics.new(tickets)
     metrics.graph
     metrics.save
   end
 
-  def tickets
+  def download_tickets
     @tickets ||= begin
 
       first_page = HTTParty.get(@tickets_uri, basic_auth)
+      # puts first_page
       tickets = first_page['tickets']
       next_url = first_page['next_page']
       count = first_page['count']
       puts "   Got: #{count}"
 
-      while count == 1000 do
+      while count == 1000
         next_page = HTTParty.get(next_url, basic_auth)
         tickets += next_page['tickets']
         next_url = next_page['next_page']
@@ -50,21 +51,21 @@ class ZendeskTicket
   end
 
   def export_columns
-    ['id', 'type', 'subject', 'status', 'user_priority', 'development_priority',
-     'company', 'project', 'platform', 'function', 'satisfaction_rating', 'created_at', 'updated_at']
+    %w(id type subject status user_priority development_priority company project
+       platform function satisfaction_rating created_at updated_at)
   end
 
   def metric_columns
-    ['initially_assigned_at', 'solved_at', 'full_resolution_time_in_minutes', 
-      'requester_wait_time_in_minutes', 'reply_time_in_minutes']
+    %w(initially_assigned_at solved_at full_resolution_time_in_minutes
+       requester_wait_time_in_minutes reply_time_in_minutes)
   end
 
   def basic_auth
     {
       basic_auth: {
         username: @username,
-        password: @password,
-      },
+        password: @password
+      }
     }
   end
 
@@ -76,12 +77,12 @@ class ZendeskTicket
     end
   end
 
-  def retrieve_tickets(tickets_in)
+  def retrieve_fields(tickets_in)
 
     puts '   Total tickets = ' + tickets_in.count.to_s
     puts
 
-    CSV.open("all_tickets.csv", "wb") do |csv|
+    CSV.open('all_tickets.csv', 'wb') do |csv|
       csv << self.export_columns + self.metric_columns
     end
 
@@ -91,11 +92,11 @@ class ZendeskTicket
     number_of_tickets = gets.chomp.to_i
     puts
 
-    progressbar = ProgressBar.create(title: "#{number_of_tickets} Tickets", 
+    progressbar = ProgressBar.create(title: "#{number_of_tickets} Tickets",
       starting_at: 0, format: '%a |%b>>%i| %p%% %t', total: number_of_tickets)
 
     tickets_in.first(number_of_tickets).each do |ticket|
-      CSV.open("all_tickets.csv", "a") do |csv|
+      CSV.open('all_tickets.csv', 'a') do |csv|
         row = []
         info = Hash.new
         metrics_info = Hash.new
@@ -111,11 +112,10 @@ class ZendeskTicket
             value = ticket['custom_fields'][2]['value']
             if value
               info['development_priority'] = "d#{value[-1]}" if value[-1].to_i > 0
-              row << info['development_priority']
             else
               info['development_priority'] = value
-              row << info['development_priority']
             end
+            row << info['development_priority']
           when 'company'
             info['company'] = ticket['custom_fields'][3]['value']
             row << info['company']

@@ -60,17 +60,17 @@ end
 puts
 
 case options[:option]
-when "a"
+when 'a'
   a = ArticleHelper.new(options[:username], options[:password], options[:domain])
   a.run
-when "t"
+when 't'
   t = ZendeskTicket.new(options[:username], options[:password], options[:domain])
   t.run
-when "b"
+when 'b'
   a = ArticleHelper.new(options[:username], options[:password], options[:domain])
   a.run
   t = ZendeskTicket.new(options[:username], options[:password], options[:domain])
   t.run
 else
-  puts "Not a valid option."
+  puts 'Not a valid option.'
 end

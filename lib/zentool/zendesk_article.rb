@@ -69,8 +69,8 @@ class ZendeskArticle
     {
       basic_auth: {
         username: @username,
-        password: @password,
-      },
+        password: @password
+      }
     }
   end
 
