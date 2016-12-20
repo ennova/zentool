@@ -14,6 +14,9 @@ require_relative 'zentool/article_helper.rb'
 require_relative 'zentool/graph.rb'
 require_relative 'zentool/zendesk_ticket.rb'
 
+puts
+puts 'Welcome to Zentool! Please enter the following details if not entered already:'
+
 options = {}
 
 OptionParser.new do |parser|
@@ -35,10 +38,11 @@ OptionParser.new do |parser|
     options[:domain] = v
   end
 
-  parser.on('-o', '--option OPTION', 'article, tickets or both.') do |v|
+  parser.on('-o', '--option OPTION', 'Article, tickets or both.') do |v|
     options[:option] = v.downcase[0]
   end
 end.parse!
+
 
 if options[:domain] == NilClass || !options.key?(:domain)
   print 'Zendesk domain: '
@@ -54,13 +58,13 @@ if options[:password] == NilClass || !options.key?(:password)
   puts
 end
 if options[:option] == NilClass || !options.key?(:option)
-  print 'Option (article, ticket or both): '
+  print 'Option (article, ticket or both [a/t/b]): '
   options[:option] = gets.chomp.downcase[0]
 end
 puts
-
 case options[:option]
 when 'a'
+  puts
   a = ArticleHelper.new(options[:username], options[:password], options[:domain])
   a.run
 when 't'

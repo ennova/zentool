@@ -17,6 +17,7 @@ describe Ticket do
 		end
 		context 'one or more parameters are not valid' do
 			it 'return error message' do
+        expect { Ticket.new(@invalid_info, @invalid_metrics) }.to raise_error
 			end
 		end
 		context 'valid parameters' do
@@ -46,7 +47,7 @@ describe Ticket do
 	end
 
 	def create_tickets
-		@invalid_metrics = ['invalid_key' => 'invalid_value']
+		
 		@valid_metrics = %w(id ticket_id url group_stations assignee_stations reopens replies assignee_updated_at
 			requester_updated_at status_updated_at initially_assigned_at assigned_at solved_at latest_comment_added_at
 			first_resolution_time_in_minutes reply_time_in_minutes full_resolution_time_in_minutes agent_wait_time_in_minutes
@@ -58,9 +59,9 @@ describe Ticket do
 			allow_channelback is_public created_at updated_at type user_priority development_priority company project
       platform function)
 
-		@info = {'id' => 1, 'type' => 'abc', 'subject' => 'abc', 'status' => 'abc', 'user_priority' => 'abc',
-			'development_priority' => 'abc', 'company' => 'abc', 'project' => 'abc', 'platform' => 'abc', 'function' => 'abc',
-			'satisfaction_rating' => 'abc', 'created_at' => 'abc', 'updated_at' => 'abc'}
+		@invalid_info = [1, 2, 3]
+    @invalid_metrics = [1, 2, 3]
+
 		empty_info = {}
 
 		@info = {'id' => 1, 'type' => 'abc', 'subject' => 'abc', 'status' => 'abc', 'user_priority' => 'abc',

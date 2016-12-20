@@ -14,10 +14,13 @@ class ZendeskTicket
     @start_time = Time.new('2016-01-01').to_i
     @tickets_uri = @root_uri + "incremental/tickets.json?start_time=#{@start_time}"
     @username, @password = username, password
+    puts 'Checking authentication...'
     check_auth
+    puts 'Authentication successful!'
   end
 
   def run
+    puts
     puts 'Envision Zendesk Tickets'
     puts '------------------------'
     puts '-> Retrieving Tickets...'

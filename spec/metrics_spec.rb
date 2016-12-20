@@ -16,7 +16,7 @@ describe Metrics do
 		end
 		# context 'ticket array is not valid' do
 		# 	it 'return error message' do
-          expect(@invalid_metrics)
+    #      expect(@invalid_metrics)
 		# 	end
 		# end
 		context 'valid ticket array' do
@@ -45,8 +45,7 @@ describe Metrics do
 	# 	context ''
 	# end
 
-	def create_metrics
-    invalid_info = [1, 2, 3]
+	def create_metrics 
 
 		info1 = {'id' => 1, 'type' => 'abc', 'subject' => 'abc', 'status' => 'abc', 'user_priority' => 'abc',
 			'development_priority' => 'abc', 'company' => 'abc', 'project' => 'abc', 'platform' => 'abc',
@@ -62,8 +61,6 @@ describe Metrics do
 
 		empty_info = {}
 
-    invalid_metrics = [1, 2, 3]
-
 		metrics1 = {'solved_at' => 'abc', 'full_resolution_time_in_minutes' => 1441,
       'requester_wait_time_in_minutes' => 1, 'reply_time_in_minutes' => 1}
 		metrics2 = {'solved_at' => 'abc', 'full_resolution_time_in_minutes' => 1441,
@@ -77,19 +74,22 @@ describe Metrics do
 		ticket2 = Ticket.new(info2, metrics2)
 		ticket3 = Ticket.new(info3, metrics3)
 
-    invalid_ticket1 = Ticket.new(invalid_info, invalid_metrics)
-    invalid_ticket2 = Ticket.new(invalid_info, invalid_metrics)
-
 		empty_ticket = Ticket.new(empty_info, empty_metrics1)
 
-		tickets = [ticket1, ticket2, ticket3]
+		@tickets = [ticket1, ticket2, ticket3]
 
 		empty_tickets = [empty_ticket]
-    invalid_tickets = [invalid_ticket1, invalid_ticket2]
 
-		@metrics = Metrics.new(tickets)
+
+		@metrics = Metrics.new(@tickets)
 		@empty_metrics = Metrics.new(empty_tickets)
-    @invalid_metrics = Metrics.new(invalid_tickets)
+
+    # invalid_info = [1, 2, 3]
+    # invalid_metrics = [1, 2, 3]
+    # invalid_ticket1 = Ticket.new(invalid_info, invalid_metrics)
+    # invalid_ticket2 = Ticket.new(invalid_info, invalid_metrics)
+    # invalid_tickets = [invalid_ticket1, invalid_ticket2]
+    # @invalid_metrics = Metrics.new(invalid_tickets)
 
 	end
 end
