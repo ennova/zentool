@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Tool to interface with Zendesk}
   spec.description   = %q{Tool to interface with Zendesk}
-  spec.homepage      = 'https://github.com/tomstephen/zentool'
+  spec.homepage      = 'https://github.com/ennova/zentool'
   spec.license       = 'MIT'
 
   # if spec.respond_to?(:metadata)

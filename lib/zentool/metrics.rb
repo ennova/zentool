@@ -8,7 +8,8 @@ class Metrics
   MINUTES_IN_HOUR = 60
   PLOT_WIDTH = 200
   CURRENT_DATE = Date.today
-  attr_accessor :tickets, :unsolved_tickets_by_age_log_scale, :solved_tickets_by_age_log_scale,
+  attr_accessor :tickets, :avg_user_priority, :avg_development_priority,
+    :unsolved_tickets_by_age_log_scale, :solved_tickets_by_age_log_scale
 
   def initialize(tickets)
     @tickets = tickets
