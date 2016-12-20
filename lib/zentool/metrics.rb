@@ -9,7 +9,6 @@ class Metrics
   PLOT_WIDTH = 200
   CURRENT_DATE = Date.today
   attr_accessor :tickets, :unsolved_tickets_by_age_log_scale, :solved_tickets_by_age_log_scale,
-    :tickets_by_user_priority, :tickets_by_development_priority
 
   def initialize(tickets)
     @tickets = tickets
@@ -44,17 +43,16 @@ class Metrics
     @unsolved_tickets_by_age_log_scale = @log_scale
 
     @tickets.each do |ticket|
-        # Rounds the age of the ticket down to the nearest day
-        unless ticket.metrics['full_resolution_time_in_minutes']
-          if ticket.metrics['initially_assigned_at']
-            start_date = Date.parse ticket.metrics['initially_assigned_at']
-            age = (CURRENT_DATE - start_date).to_i
-            @solved_tickets_by_age_log_scale = plot_as_log(@solved_tickets_by_age_log_scale, age)
-          end
+      metrics = ticket.metrics
+      # Rounds the age of the ticket down to the nearest day
+      unless metrics['full_resolution_time_in_minutes']
+        if metrics['initially_assigned_at']
+          start_date = Date.parse metrics['initially_assigned_at']
+          age = (CURRENT_DATE - start_date).to_i
+          @solved_tickets_by_age_log_scale = plot_as_log(@solved_tickets_by_age_log_scale, age)
         end
+      end
     end
-
-
   end
 
   # Creates plot data for number of solved tickets by age
@@ -63,9 +61,10 @@ class Metrics
     @solved_tickets_by_age_log_scale = @log_scale
 
     @tickets.each do |ticket|
+      metrics = ticket.metrics
       # Rounds the age of the ticket down to the nearest day
-      if ticket.metrics['full_resolution_time_in_minutes']
-        age = ticket.metrics['full_resolution_time_in_minutes'] / MINUTES_IN_DAY
+      if metrics['full_resolution_time_in_minutes']
+        age = metrics['full_resolution_time_in_minutes'] / MINUTES_IN_DAY
         @solved_tickets_by_age_log_scale = plot_as_log(@solved_tickets_by_age_log_scale, age)
       end
     end
