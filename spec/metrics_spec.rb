@@ -41,6 +41,7 @@ describe Metrics do
         expected_hash = {'0' => 0, '1' => 0, '2' => 0, '3' => 0, '4' => 0,
           '5' => 0, '6-10' => 0, '11-20' => 0, '21-50' => 0, '51-100' => 0, '101+' => 2}
         expect(@metrics.unsolved_age(@valid_log_scale)).to eql expected_hash
+        expect(@metrics.unsolved_tickets_by_age_log_scale).to eql expected_hash
       end
 		end
 	end
@@ -51,6 +52,7 @@ describe Metrics do
         expected_hash = {'0' => 0, '1' => 1, '2' => 0, '3' => 0, '4' => 0,
           '5' => 1, '6-10' => 0, '11-20' => 0, '21-50' => 0, '51-100' => 0, '101+' => 0}
         expect(@metrics.solved_age(@valid_log_scale)).to eql expected_hash
+        expect(@metrics.solved_tickets_by_age_log_scale).to eql expected_hash
       end
     end
   end

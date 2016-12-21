@@ -1,13 +1,13 @@
 # Graph class for pull_articles.rb
 
 class Graph
-  def initialize(articles, sections, categories)
-    @articles, @sections, @categories = articles, sections, categories
+  def initialize(articles, sections, categories, basic_auth)
+    @articles, @sections, @categories, @basic_auth = articles, sections, categories, basic_auth
   end
 
   def generate
     id_title_map = Graph.create_id_title_map(@articles)
-    @article_link_map = Graph.article_link_map(@articles, @categories, @sections, id_title_map)
+    @article_link_map = Graph.article_link_map(@articles, @categories, @sections, id_title_map, @basic_auth)
     graph_settings
     graph_nodes(id_title_map)
     graph_edges(id_title_map)
@@ -34,7 +34,17 @@ class Graph
     string.split(//).map { |x| x[/\d+/] }.compact.join('').to_i
   end
 
-  def self.article_link_map(articles, categories, sections, id_title_map)
+  def self.validate_link(link, basic_auth)
+    response = HTTParty.get(link, basic_auth)
+    unless response.code == 200
+      puts "Error #{response.code}: #{response.message}"
+      return false
+    end
+    puts 'Success'
+    return true
+  end
+
+  def self.article_link_map(articles, categories, sections, id_title_map, basic_auth)
     article_link_map = {}
     articles.each do |article|
       unless (categories[sections[article['section_id']]['category_id']]['name'] == 'Announcements') || (article['body'].class != String)
@@ -42,10 +52,12 @@ class Graph
         referenced_articles = []
         unless referenced_links.empty?
           referenced_links.each do |link|
-            id = Graph.extract_IDs(link)
-            title = id_title_map[id]
-            unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
-              referenced_articles << Graph.wrap("#{title}\n#{id}")
+            if validate_link(link, basic_auth)
+              id = Graph.extract_IDs(link)
+              title = id_title_map[id]
+              unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
+                referenced_articles << Graph.wrap("#{title}\n#{id}")
+              end
             end
           end
           article_link_map[article['id']] = referenced_articles
@@ -91,4 +103,5 @@ class Graph
       @g.add_edges(Graph.wrap("#{id_title_map[id]}\n#{id}"), referenced_articles.map(&:to_s))
     end
   end
+
 end

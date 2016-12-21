@@ -15,8 +15,9 @@ class Metrics
     @tickets = tickets
     log_scale = {'0' => 0, '1' => 0, '2' => 0, '3' => 0, '4' => 0,
       '5' => 0, '6-10' => 0, '11-20' => 0, '21-50' => 0, '51-100' => 0, '101+' => 0}
+    log_scale2 = log_scale.clone
     @unsolved_tickets_by_age_log_scale = unsolved_age(log_scale)
-    @solved_tickets_by_age_log_scale = solved_age(log_scale)
+    @solved_tickets_by_age_log_scale = solved_age(log_scale2)
     @avg_user_priority = avg_priority('user_priority')
     @avg_development_priority = avg_priority('development_priority')
   end
@@ -40,7 +41,7 @@ class Metrics
 
   # Creates plot data for number of solved tickets by age
   def unsolved_age(log_scale)
-
+    out_scale = Hash.new
     @tickets.each do |ticket|
       metrics = ticket.metrics
       # Rounds the age of the ticket down to the nearest day
@@ -57,7 +58,7 @@ class Metrics
 
   # Creates plot data for number of solved tickets by age
   def solved_age(log_scale)
-
+    out_scale = Hash.new
     @tickets.each do |ticket|
       metrics = ticket.metrics
       # Rounds the age of the ticket down to the nearest day
@@ -103,13 +104,14 @@ class Metrics
 
   # draws command line graph based on ticket metrics
   def graph
+    puts @solved_tickets_by_age_log_scale, @unsolved_tickets_by_age_log_scale, @avg_development_priority, @avg_user_priority
     puts
     puts 'Age of Solved Tickets'
     puts '_____________________'
   	puts 'Days     Ticket-Count'
   	@solved_tickets_by_age_log_scale.keys.each do |age|
       printf "%-10s %5d %s \n" % [age, @solved_tickets_by_age_log_scale[age],
-        '#' * @solved_tickets_by_age_log_scale[age]]
+        '#' * (Math.log10(@solved_tickets_by_age_log_scale[age]+1)*5)]
   	end
 
     puts
@@ -118,7 +120,7 @@ class Metrics
     puts 'Days     Ticket-Count'
     @unsolved_tickets_by_age_log_scale.keys.each do |age|
       printf "%-10s %5d %s \n" % [age, @unsolved_tickets_by_age_log_scale[age],
-        '#' * @unsolved_tickets_by_age_log_scale[age]]
+        '#' * (Math.log10(@unsolved_tickets_by_age_log_scale[age]+1)*5)]
     end
 
     puts

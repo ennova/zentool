@@ -85,8 +85,18 @@ class ArticleHelper
     end
   end
 
+  def basic_auth
+    {
+      basic_auth: {
+        username: @username,
+        password: @password
+      }
+    }
+  end
+
   def create_graph
-    graph = Graph.new(@articles, @sections, @categories)
+    graph = Graph.new(@articles, @sections, @categories, basic_auth)
     graph.generate
   end
+
 end

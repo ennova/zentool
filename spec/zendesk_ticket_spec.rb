@@ -1,9 +1,5 @@
 require 'spec_helper'
 require_relative '../lib/zentool/zendesk_ticket'
-# require 'webmock'
-# require_relative '../lib/zentool/zendesk_ticket'
-
-# Webmock.disable_net_connect!(:allow_localhost => true)
 
 describe ZendeskTicket do
 	before :all do
@@ -24,8 +20,22 @@ describe ZendeskTicket do
     end
   end
 
-  # describe '.download_tickets'
+  # describe '.download_tickets' do
+  #   context 'successful get' do
+  #     it 'correct response' do
+  #       #Actual request
+  #       req = Net::HTTP::Post.new('/')
+  #       req['Content-Length'] = 3
+  #       Net::HTTP.start('https://envisionapp.zendesk.com/', 80) {|http|
+  #           http.request(req, 'abc')
+  #       } 
 
+  #         expect(request(:post, 'https://envisionapp.zendesk.com/').
+  #           with(:body => "abc", :headers => { 'Content-Length' => 3 })).to have_been_made.once
+
+  #         expect(request(:get, "www.something.com")).to_not have_been_made
+  #     end
+  #   end
   # end
 
   describe '.basic_auth' do
@@ -39,5 +49,9 @@ describe ZendeskTicket do
 
   def create_zendesk_tickets
     @zen_ticket = ZendeskTicket.new('user', 'password', 'domain')
+
+    # stub_request(:any, 'https://envisionapp.zendesk.com/').
+    # with(:headers => { 'Content-Length' => 3 }).to_return(:body => 'abc')
+
   end
 end
