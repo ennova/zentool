@@ -9,17 +9,21 @@ require_relative 'metrics'
 require_relative 'ticket'
 
 class ZendeskTicket
+
+  attr_accessor :root_uri, :start_time, :tickets_uri, :domain, :username, :password
+
   def initialize(username, password, domain)
     @root_uri = "https://#{domain}.zendesk.com/api/v2/"
     @start_time = Time.new('2016-01-01').to_i
     @tickets_uri = @root_uri + "incremental/tickets.json?start_time=#{@start_time}"
-    @username, @password = username, password
-    puts 'Checking authentication...'
-    check_auth
-    puts 'Authentication successful!'
+    @username, @password, @domain = username, password, domain
   end
 
   def run
+
+    puts 'Checking authentication...'
+    check_auth
+    puts 'Authentication successful!'
     puts
     puts 'Envision Zendesk Tickets'
     puts '------------------------'

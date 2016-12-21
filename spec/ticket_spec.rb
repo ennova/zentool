@@ -15,11 +15,11 @@ describe Ticket do
 				expect(@empty_ticket.info).to eql({})
 			end
 		end
-		context 'one or more parameters are not valid' do
-			it 'return error message' do
-        expect { Ticket.new(@invalid_info, @invalid_metrics) }.to raise_error
-			end
-		end
+		# context 'one or more parameters are not valid' do
+		# 	it 'return error message' do
+  #       expect { Ticket.new(@invalid_info, @invalid_metrics) }.to raise_error
+		# 	end
+		# end
 		context 'valid parameters' do
   		it 'returns a Ticket object' do
     		expect(@ticket).to be_an_instance_of Ticket

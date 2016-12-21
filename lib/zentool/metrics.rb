@@ -13,10 +13,10 @@ class Metrics
 
   def initialize(tickets)
     @tickets = tickets
-    @log_scale = {'0' => 0, '1' => 0, '2' => 0, '3' => 0, '4' => 0,
+    log_scale = {'0' => 0, '1' => 0, '2' => 0, '3' => 0, '4' => 0,
       '5' => 0, '6-10' => 0, '11-20' => 0, '21-50' => 0, '51-100' => 0, '101+' => 0}
-    unsolved_age
-    solved_age
+    @unsolved_tickets_by_age_log_scale = unsolved_age(log_scale)
+    @solved_tickets_by_age_log_scale = solved_age(log_scale)
     @avg_user_priority = avg_priority('user_priority')
     @avg_development_priority = avg_priority('development_priority')
   end
@@ -39,8 +39,7 @@ class Metrics
   end
 
   # Creates plot data for number of solved tickets by age
-  def unsolved_age
-    @unsolved_tickets_by_age_log_scale = @log_scale
+  def unsolved_age(log_scale)
 
     @tickets.each do |ticket|
       metrics = ticket.metrics
@@ -49,25 +48,25 @@ class Metrics
         if metrics['initially_assigned_at']
           start_date = Date.parse metrics['initially_assigned_at']
           age = (CURRENT_DATE - start_date).to_i
-          @unsolved_tickets_by_age_log_scale = plot_as_log(@unsolved_tickets_by_age_log_scale, age)
+          log_scale = plot_as_log(log_scale, age)
         end
       end
     end
+    log_scale
   end
 
   # Creates plot data for number of solved tickets by age
-  def solved_age
-
-    @solved_tickets_by_age_log_scale = @log_scale
+  def solved_age(log_scale)
 
     @tickets.each do |ticket|
       metrics = ticket.metrics
       # Rounds the age of the ticket down to the nearest day
       if metrics['full_resolution_time_in_minutes']
         age = metrics['full_resolution_time_in_minutes'] / MINUTES_IN_DAY
-        @solved_tickets_by_age_log_scale = plot_as_log(@solved_tickets_by_age_log_scale, age)
+        log_scale = plot_as_log(log_scale, age)
       end
     end
+    log_scale
   end
 
   # Creates plot data for average first reply time by priority
