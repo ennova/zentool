@@ -38,9 +38,9 @@ class Graph
     response = HTTParty.get(link, basic_auth)
     unless response.code == 200
       puts "Error #{response.code}: #{response.message}"
+      puts 'Broken link: ' + link
       return false
     end
-    puts 'Success'
     return true
   end
 
@@ -58,6 +58,8 @@ class Graph
               unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
                 referenced_articles << Graph.wrap("#{title}\n#{id}")
               end
+            else
+              puts article['title'], article['url']
             end
           end
           article_link_map[article['id']] = referenced_articles

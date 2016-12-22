@@ -4,6 +4,7 @@ class Ticket
   attr_accessor :metrics, :info
 
   def initialize(info, metrics)
+    puts info, metrics
     @info = info
     @metrics = metrics
   end

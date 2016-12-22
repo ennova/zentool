@@ -140,7 +140,7 @@ class ZendeskTicket
             row << info['satisfaction_rating']
           else
             info[column] = ticket[column]
-            row << info['type']
+            row << info[column]
           end
         end
 

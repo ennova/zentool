@@ -104,7 +104,6 @@ class Metrics
 
   # draws command line graph based on ticket metrics
   def graph
-    puts @solved_tickets_by_age_log_scale, @unsolved_tickets_by_age_log_scale, @avg_development_priority, @avg_user_priority
     puts
     puts 'Age of Solved Tickets'
     puts '_____________________'

@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'graphviz'
 gem 'httparty'
 gem 'nokogiri'
 gem 'pry'
