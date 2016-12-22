@@ -34,10 +34,17 @@ class Graph
     string.split(//).map { |x| x[/\d+/] }.compact.join('').to_i
   end
 
-  def self.validate_link(link, basic_auth)
+  def self.validate_link(article, link, basic_auth)
     response = HTTParty.get(link, basic_auth)
     unless response.code == 200
-      puts "Error #{response.code}: #{response.message}"
+      puts
+      puts 'Broken Link Found'
+      puts '-----------------'
+      puts
+      puts 'From page: ' +  article['title']
+      puts 'At URL: ' + article['html_url']
+      puts
+      puts "Message: Error #{response.code}: #{response.message}"
       puts 'Broken link: ' + link
       return false
     end
@@ -45,6 +52,7 @@ class Graph
   end
 
   def self.article_link_map(articles, categories, sections, id_title_map, basic_auth)
+    puts 'Constructing article link map...'
     article_link_map = {}
     articles.each do |article|
       unless (categories[sections[article['section_id']]['category_id']]['name'] == 'Announcements') || (article['body'].class != String)
@@ -52,14 +60,14 @@ class Graph
         referenced_articles = []
         unless referenced_links.empty?
           referenced_links.each do |link|
-            if validate_link(link, basic_auth)
+            if validate_link(article, link, basic_auth)
               id = Graph.extract_IDs(link)
               title = id_title_map[id]
               unless (id.class == NilClass) || (title.class == NilClass) || (id.to_s.size != 9)
                 referenced_articles << Graph.wrap("#{title}\n#{id}")
               end
             else
-              puts article['title'], article['url']
+
             end
           end
           article_link_map[article['id']] = referenced_articles
